@@ -33,7 +33,7 @@ public class Activity {
     private String activityTitle;
     @Lob
     private String description;
-    private LocalDate date;
+    private LocalDate dueDate;
     @OneToMany(
         mappedBy = "activity",
         fetch = FetchType.LAZY,

@@ -2,6 +2,8 @@ package com.jeison.courses.domain.entities;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +29,7 @@ public class Submission {
     private Long id;
     @Lob
     private String content;
+    @CreationTimestamp
     private LocalDate submissionDate;
     private double grade;
     @ManyToOne(fetch = FetchType.LAZY)
