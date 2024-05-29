@@ -1,7 +1,5 @@
 package com.jeison.courses.api.dto.response;
 
-import java.util.List;
-
 import com.jeison.courses.utils.enums.RoleUser;
 
 import lombok.AllArgsConstructor;
@@ -19,10 +17,5 @@ public class UserResp {
     private String userName;
     private String email;
     private RoleUser roleUser;
-    private List<CourseRespToUserInstructor> courses;
-    private List<EnrollmentRespToUserStudent> enrollments;
-    private List<SubmissionRespToUser> submissions;
-    private List<MessageRespToUser> sentMessages;
-    private List<MessageRespToUser> receivedMessages;
 
 }

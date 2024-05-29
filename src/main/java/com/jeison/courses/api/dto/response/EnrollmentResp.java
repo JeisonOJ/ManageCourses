@@ -11,11 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SubmissionRespToUser {
+public class EnrollmentResp{
 
     private Long id;
-    private String content;
-    private LocalDate submissionDate;
-    private double grade;
+    private LocalDate date;
+    private EnrollmentResp course;
 
 }
