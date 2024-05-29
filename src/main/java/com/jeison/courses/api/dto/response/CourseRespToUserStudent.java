@@ -1,7 +1,5 @@
 package com.jeison.courses.api.dto.response;
 
-import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EnrollmentRespToUser {
+public class CourseRespToUserStudent {
 
-    private LocalDate date;
+    private Long id;
+    private String courseName;
+    private String description;
 
 }
