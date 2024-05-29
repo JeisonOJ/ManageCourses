@@ -5,6 +5,6 @@ import com.jeison.courses.api.dto.response.UserResp;
 
 public interface IUserService extends CrudService<UserReq,UserResp,Long>{
 
-    public final String FIELD_BY_SORT = "username";
+    public final String FIELD_BY_SORT = "userName";
 
 }
