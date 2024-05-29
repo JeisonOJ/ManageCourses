@@ -14,6 +14,7 @@ import com.jeison.courses.utils.enums.SortType;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,11 +30,16 @@ public class UserController {
     public ResponseEntity<Page<UserResp>> getAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestHeader(required = false) SortType sortType) {
-        if (Objects.isNull(sortType)) {
-            sortType = SortType.NONE;
-        }
-        return ResponseEntity.ok(this.userService.findAll(page - 1, size, sortType));
+        @RequestHeader(required = false) SortType sortType) {
+      if (Objects.isNull(sortType)) {
+        sortType = SortType.NONE;
+      }
+      return ResponseEntity.ok(this.userService.findAll(page - 1, size, sortType));
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResp> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findByIdWithDetails(id));
     }
 
 }

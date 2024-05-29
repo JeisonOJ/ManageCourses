@@ -13,6 +13,8 @@ import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.IUserService;
 import com.jeison.courses.utils.enums.SortType;
+import com.jeison.courses.utils.exception.BadRequestException;
+import com.jeison.courses.utils.message.ErrorMessage;
 
 import lombok.AllArgsConstructor;
 
@@ -45,8 +47,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserResp findByIdWithDetails(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByIdWithDetails'");
+      return userToResp(findById(id));
     }
 
     @Override
@@ -68,11 +69,16 @@ public class UserService implements IUserService {
     }
 
     private UserResp userToResp(User user) {
-        return UserResp.builder()
-                .id(user.getId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
-                .roleUser(user.getRoleUser())
-                .build();
+      return UserResp.builder()
+          .id(user.getId())
+          .userName(user.getUserName())
+          .email(user.getEmail())
+          .roleUser(user.getRoleUser())
+          .build();
     }
+
+    private User findById(Long id) {
+      return userRepository.findById(id).orElseThrow(()-> new BadRequestException(ErrorMessage.idNotFound("user")));
+    }
+    
 }
