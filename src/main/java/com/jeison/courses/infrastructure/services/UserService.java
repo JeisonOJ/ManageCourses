@@ -52,20 +52,20 @@ public class UserService implements IUserService {
 
     @Override
     public UserResp create(UserReq request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        return userToResp(userRepository.save(reqToEntity(request)));
     }
 
     @Override
     public UserResp update(UserReq request, Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        findById(id);
+        User user = reqToEntity(request);
+        user.setId(id);
+        return userToResp(userRepository.save(user));
     }
 
     @Override
     public void delete(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        userRepository.delete(findById(id));
     }
 
     private UserResp userToResp(User user) {
@@ -73,9 +73,20 @@ public class UserService implements IUserService {
           .id(user.getId())
           .userName(user.getUserName())
           .email(user.getEmail())
+          .fullname(user.getFullName())
           .roleUser(user.getRoleUser())
           .build();
     }
+
+    private User reqToEntity(UserReq userReq) {
+        return User.builder()
+            .userName(userReq.getUserName())
+            .password(userReq.getPassword())
+            .email(userReq.getEmail())
+            .fullName(userReq.getFullName())
+            .roleUser(userReq.getRoleUser())
+            .build();
+      }
 
     private User findById(Long id) {
       return userRepository.findById(id).orElseThrow(()-> new BadRequestException(ErrorMessage.idNotFound("user")));
