@@ -7,4 +7,9 @@ public class ErrorMessage {
        return String.format(message, entity);
   }
 
+  public static String idNotFound(String entity, String role) {
+    final String message = "There are no registers in %s with that id for the role %s";
+     return String.format(message, entity, role);
+}
+
 }
