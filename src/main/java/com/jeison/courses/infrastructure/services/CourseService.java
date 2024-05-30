@@ -14,7 +14,7 @@ import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.CourseRepository;
 import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.ICourseService;
-import com.jeison.courses.infrastructure.helper.UserHelper;
+import com.jeison.courses.infrastructure.helper.CourseHelper;
 import com.jeison.courses.utils.enums.RoleUser;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
@@ -46,50 +46,34 @@ public class CourseService implements ICourseService {
         }
 
         Pageable pageable = pageRequest;
-        return courseRepository.findAll(pageable).map(this::courseToResp);
+        return courseRepository.findAll(pageable).map(course -> CourseHelper.courseToResp(course));
     }
 
     @Override
     public CourseResp findByIdWithDetails(Long id) {
-        return courseToResp(findById(id));
+        return CourseHelper.courseToResp(findById(id));
     }
 
     @Override
     public CourseResp create(CourseReq request) {
         User instructor = findInstructorById(request.getInstructorId());
-        Course course = reqToEntity(request);
+        Course course = CourseHelper.reqToCourse(request);
         course.setInstructor(instructor);
-        return courseToResp(courseRepository.save(course));
+        return CourseHelper.courseToResp(courseRepository.save(course));
 
     }
 
     @Override
     public CourseResp update(CourseReq request, Long id) {
         findById(id);
-        Course course = reqToEntity(request);
+        Course course = CourseHelper.reqToCourse(request);
         course.setId(id);
-        return courseToResp(courseRepository.save(course));
+        return CourseHelper.courseToResp(courseRepository.save(course));
     }
 
     @Override
     public void delete(Long id) {
         courseRepository.delete(findById(id));
-    }
-
-    private CourseResp courseToResp(Course course) {
-        return CourseResp.builder()
-                .id(course.getId())
-                .courseName(course.getCourseName())
-                .description(course.getDescription())
-                .instructor(UserHelper.userToResp(course.getInstructor()))
-                .build();
-    }
-
-    private Course reqToEntity(CourseReq courseReq) {
-        return Course.builder()
-                .courseName(courseReq.getCourseName())
-                .description(courseReq.getDescription())
-                .build();
     }
 
     private Course findById(Long id) {
