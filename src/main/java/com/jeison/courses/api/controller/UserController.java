@@ -30,8 +30,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("/users")
 @AllArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
   @Autowired
