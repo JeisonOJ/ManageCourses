@@ -15,6 +15,7 @@ public class EnrollmentResp{
 
     private Long id;
     private LocalDate date;
-    private EnrollmentResp course;
+    private CourseResp course;
+    private UserResp student;
 
 }
