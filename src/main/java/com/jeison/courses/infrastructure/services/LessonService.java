@@ -63,9 +63,10 @@ public class LessonService implements ILessonService {
 
     @Override
     public LessonResp update(LessonReq request, Long id) {
-        findById(id);
+        Lesson lessonFound =  findById(id);
         Lesson lesson = LessonHelper.reqToLesson(request);
         lesson.setId(id);
+        lesson.setCourse(lessonFound.getCourse());
         return LessonHelper.lessonToResp(lessonRepository.save(lesson));
     }
 

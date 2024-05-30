@@ -65,9 +65,10 @@ public class CourseService implements ICourseService {
 
     @Override
     public CourseResp update(CourseReq request, Long id) {
-        findById(id);
+        Course courseFound = findById(id);
         Course course = CourseHelper.reqToCourse(request);
         course.setId(id);
+        course.setInstructor(courseFound.getInstructor());
         return CourseHelper.courseToResp(courseRepository.save(course));
     }
 
