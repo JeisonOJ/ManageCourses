@@ -17,11 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jeison.courses.api.dto.errors.ErrorResp;
 import com.jeison.courses.api.dto.request.CourseReq;
 import com.jeison.courses.api.dto.response.CourseResp;
 import com.jeison.courses.infrastructure.abstract_services.ICourseService;
 import com.jeison.courses.utils.enums.SortType;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -32,6 +37,7 @@ public class CourseController {
   @Autowired
   private final ICourseService courseService;
 
+  @Operation(summary = "Get the entire courses list in a paginated manner")
   @GetMapping
   public ResponseEntity<Page<CourseResp>> getAll(
       @RequestParam(defaultValue = "1") int page,
@@ -43,23 +49,40 @@ public class CourseController {
     return ResponseEntity.ok(this.courseService.findAll(page - 1, size, sortType));
   }
 
+  @Operation(summary = "Get an course by its ID number")
+  @ApiResponse(responseCode = "400", description = "When the ID is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
   @GetMapping("/{id}")
   public ResponseEntity<CourseResp> getById(@PathVariable Long id) {
     return ResponseEntity.ok(courseService.findByIdWithDetails(id));
   }
 
+  @Operation(summary = "Create an course")
+  @ApiResponse(responseCode = "400", description = "When the request is not valid", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
   @PostMapping
-  public ResponseEntity<CourseResp> createUser(@Validated @RequestBody CourseReq courseReq) {
+  public ResponseEntity<CourseResp> createCourse(@Validated @RequestBody CourseReq courseReq) {
     return ResponseEntity.ok(courseService.create(courseReq));
   }
 
+  @Operation(summary = "Update an course by its ID number")
+  @ApiResponse(responseCode = "400", description = "When the request is not valid", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
   @PutMapping("{id}")
-  public ResponseEntity<CourseResp> updateUser(@Validated @RequestBody CourseReq courseReq, @PathVariable Long id) {
+  public ResponseEntity<CourseResp> updateCourse(@Validated @RequestBody CourseReq courseReq, @PathVariable Long id) {
     return ResponseEntity.ok(courseService.update(courseReq, id));
   }
 
+  @Operation(summary = "Delete an course by its ID number")
+  @ApiResponse(responseCode = "204", description = "course deleted successfully")
+  @ApiResponse(responseCode = "400", description = "When the ID is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
     courseService.delete(id);
     return ResponseEntity.noContent().build();
   }
