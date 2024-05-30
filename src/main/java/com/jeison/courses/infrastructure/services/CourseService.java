@@ -1,5 +1,6 @@
 package com.jeison.courses.infrastructure.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,8 +10,12 @@ import org.springframework.stereotype.Service;
 import com.jeison.courses.api.dto.request.CourseReq;
 import com.jeison.courses.api.dto.response.CourseResp;
 import com.jeison.courses.domain.entities.Course;
+import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.CourseRepository;
+import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.ICourseService;
+import com.jeison.courses.infrastructure.helper.UserHelper;
+import com.jeison.courses.utils.enums.RoleUser;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
 import com.jeison.courses.utils.message.ErrorMessage;
@@ -21,7 +26,10 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CourseService implements ICourseService {
 
+    @Autowired
     private final CourseRepository courseRepository;
+    @Autowired
+    private final UserRepository userRepository;
 
     @Override
     public Page<CourseResp> findAll(int page, int size, SortType sortType) {
@@ -48,20 +56,24 @@ public class CourseService implements ICourseService {
 
     @Override
     public CourseResp create(CourseReq request) {
-        return courseToResp(courseRepository.save(reqToEntity(request)));
+        User instructor = findInstructorById(request.getInstructorId());
+        Course course = reqToEntity(request);
+        course.setInstructor(instructor);
+        return courseToResp(courseRepository.save(course));
 
     }
 
     @Override
     public CourseResp update(CourseReq request, Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        findById(id);
+        Course course = reqToEntity(request);
+        course.setId(id);
+        return courseToResp(courseRepository.save(course));
     }
 
     @Override
     public void delete(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        courseRepository.delete(findById(id));
     }
 
     private CourseResp courseToResp(Course course) {
@@ -69,6 +81,7 @@ public class CourseService implements ICourseService {
                 .id(course.getId())
                 .courseName(course.getCourseName())
                 .description(course.getDescription())
+                .instructor(UserHelper.userToResp(course.getInstructor()))
                 .build();
     }
 
@@ -76,13 +89,16 @@ public class CourseService implements ICourseService {
         return Course.builder()
                 .courseName(courseReq.getCourseName())
                 .description(courseReq.getDescription())
-                
                 .build();
     }
 
     private Course findById(Long id) {
         return courseRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("user")));
+                .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("course")));
+    }
+
+    private User findInstructorById(Long id){
+        return userRepository.findByIdAndRoleUser(id, RoleUser.INSTRUCTOR).orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("user",RoleUser.INSTRUCTOR.name())));
     }
 
 }
