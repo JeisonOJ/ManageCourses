@@ -1,5 +1,7 @@
 package com.jeison.courses.infrastructure.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,12 +11,17 @@ import org.springframework.stereotype.Service;
 
 import com.jeison.courses.api.dto.request.CourseReq;
 import com.jeison.courses.api.dto.response.CourseResp;
+import com.jeison.courses.api.dto.response.CourseRespWithLessons;
+import com.jeison.courses.api.dto.response.LessonResp;
 import com.jeison.courses.domain.entities.Course;
 import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.CourseRepository;
+import com.jeison.courses.domain.repositories.LessonRepository;
 import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.ICourseService;
 import com.jeison.courses.infrastructure.helper.CourseHelper;
+import com.jeison.courses.infrastructure.helper.LessonHelper;
+import com.jeison.courses.infrastructure.helper.UserHelper;
 import com.jeison.courses.utils.enums.RoleUser;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
@@ -30,6 +37,8 @@ public class CourseService implements ICourseService {
     private final CourseRepository courseRepository;
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final LessonRepository lessonRepository;
 
     @Override
     public Page<CourseResp> findAll(int page, int size, SortType sortType) {
@@ -82,8 +91,24 @@ public class CourseService implements ICourseService {
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("course")));
     }
 
-    private User findInstructorById(Long id){
-        return userRepository.findByIdAndRoleUser(id, RoleUser.INSTRUCTOR).orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("user",RoleUser.INSTRUCTOR.name())));
+    private User findInstructorById(Long id) {
+        return userRepository.findByIdAndRoleUser(id, RoleUser.INSTRUCTOR).orElseThrow(
+                () -> new BadRequestException(ErrorMessage.idNotFound("user", RoleUser.INSTRUCTOR.name())));
+    }
+
+    @Override
+    public CourseRespWithLessons getAllCourseAndLessons(Long id) {
+        List<LessonResp> lessons = lessonRepository.findByCourseId(id).stream()
+                .map(lesson -> LessonHelper.lessonToResp(lesson)).toList();
+        Course course = findById(id);
+
+        return CourseRespWithLessons.builder()
+                .id(course.getId())
+                .courseName(course.getCourseName())
+                .description(course.getDescription())
+                .instructor(UserHelper.userToResp(course.getInstructor()))
+                .lessons(lessons)
+                .build();
     }
 
 }
