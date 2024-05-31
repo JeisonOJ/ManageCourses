@@ -21,6 +21,7 @@ import com.jeison.courses.api.dto.errors.ErrorResp;
 import com.jeison.courses.api.dto.request.UserReq;
 import com.jeison.courses.api.dto.response.UserResp;
 import com.jeison.courses.api.dto.response.UserRespWithCourses;
+import com.jeison.courses.api.dto.response.UserRespWithSubmissions;
 import com.jeison.courses.infrastructure.abstract_services.IUserService;
 import com.jeison.courses.utils.enums.SortType;
 
@@ -66,6 +67,15 @@ public class UserController {
   @GetMapping("/{id}/courses")
   public ResponseEntity<UserRespWithCourses> getByIdWithCourses(@PathVariable Long id) {
     return ResponseEntity.ok(userService.getUsersWithCourses(id));
+  }
+
+  @Operation(summary = "Get an user with submissions by its ID number")
+  @ApiResponse(responseCode = "400", description = "When the ID is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
+  @GetMapping("/{id}/submissions")
+  public ResponseEntity<UserRespWithSubmissions> getByIdWithSubmisions(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserWithSubmissions(id));
   }
 
   @Operation(summary = "Create an user")

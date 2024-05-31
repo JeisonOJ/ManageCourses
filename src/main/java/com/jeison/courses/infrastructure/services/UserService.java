@@ -11,13 +11,17 @@ import org.springframework.stereotype.Service;
 
 import com.jeison.courses.api.dto.request.UserReq;
 import com.jeison.courses.api.dto.response.EnrollmentResp;
+import com.jeison.courses.api.dto.response.SubmissionResp;
 import com.jeison.courses.api.dto.response.UserResp;
 import com.jeison.courses.api.dto.response.UserRespWithCourses;
+import com.jeison.courses.api.dto.response.UserRespWithSubmissions;
 import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.EnrollmentRepository;
+import com.jeison.courses.domain.repositories.SubmissionRepository;
 import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.IUserService;
 import com.jeison.courses.infrastructure.helper.EnrollmentHelper;
+import com.jeison.courses.infrastructure.helper.SubmissionHelper;
 import com.jeison.courses.infrastructure.helper.UserHelper;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
@@ -33,6 +37,8 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     @Autowired
     private final EnrollmentRepository enrollmentRepository;
+    @Autowired
+    private final SubmissionRepository submissionRepository;
 
     @Override
     public Page<UserResp> findAll(int page, int size, SortType sortType) {
@@ -87,14 +93,29 @@ public class UserService implements IUserService {
                 .map(enrollment -> EnrollmentHelper.enrollmentToResp(enrollment)).toList();
         User student = findById(id);
         return UserRespWithCourses.builder()
-        .id(student.getId())
-        .userName(student.getUserName())
-        .email(student.getEmail())
-        .fullname(student.getFullName())
-        .roleUser(student.getRoleUser())
-        .courses(enrollments)
-        .build();
-         
+                .id(student.getId())
+                .userName(student.getUserName())
+                .email(student.getEmail())
+                .fullname(student.getFullName())
+                .roleUser(student.getRoleUser())
+                .courses(enrollments)
+                .build();
+
+    }
+
+    @Override
+    public UserRespWithSubmissions getUserWithSubmissions(Long id) {
+        List<SubmissionResp> submissions = submissionRepository.findByUserId(id).stream()
+                .map(submission -> SubmissionHelper.submissionToResp(submission)).toList();
+        User user = findById(id);
+        return UserRespWithSubmissions.builder()
+                .id(user.getId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .fullname(user.getFullName())
+                .roleUser(user.getRoleUser())
+                .submissions(submissions)
+                .build();
     }
 
 }

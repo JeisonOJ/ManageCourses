@@ -1,5 +1,7 @@
 package com.jeison.courses.infrastructure.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,12 +11,16 @@ import org.springframework.stereotype.Service;
 
 import com.jeison.courses.api.dto.request.ActivityReq;
 import com.jeison.courses.api.dto.response.ActivityResp;
+import com.jeison.courses.api.dto.response.ActivityRespWithSubmissions;
+import com.jeison.courses.api.dto.response.SubmissionResp;
 import com.jeison.courses.domain.entities.Activity;
 import com.jeison.courses.domain.entities.Lesson;
 import com.jeison.courses.domain.repositories.ActivityRepository;
 import com.jeison.courses.domain.repositories.LessonRepository;
+import com.jeison.courses.domain.repositories.SubmissionRepository;
 import com.jeison.courses.infrastructure.abstract_services.IActivityService;
 import com.jeison.courses.infrastructure.helper.ActivityHelper;
+import com.jeison.courses.infrastructure.helper.SubmissionHelper;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
 import com.jeison.courses.utils.message.ErrorMessage;
@@ -29,6 +35,8 @@ public class ActivityService implements IActivityService {
     private final ActivityRepository activityRepository;
     @Autowired
     private final LessonRepository lessonRepository;
+    @Autowired
+    private final SubmissionRepository submissionRepository;
 
     @Override
     public Page<ActivityResp> findAll(int page, int size, SortType sortType) {
@@ -81,6 +89,20 @@ public class ActivityService implements IActivityService {
         return activityRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("activity")));
 
+    }
+
+    @Override
+    public ActivityRespWithSubmissions getActivityWithSubmissions(Long id) {
+        List<SubmissionResp> submissions = submissionRepository.findByActivityId(id).stream()
+        .map(submission -> SubmissionHelper.submissionToResp(submission)).toList();
+        Activity activity = findById(id);
+        return ActivityRespWithSubmissions.builder()
+        .id(activity.getId())
+        .activityTitle(activity.getActivityTitle())
+        .description(activity.getDescription())
+        .dueDate(activity.getDueDate())
+        .submissions(submissions)
+        .build();
     }
 
 }

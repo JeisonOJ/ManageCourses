@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jeison.courses.api.dto.errors.ErrorResp;
 import com.jeison.courses.api.dto.request.ActivityReq;
 import com.jeison.courses.api.dto.response.ActivityResp;
+import com.jeison.courses.api.dto.response.ActivityRespWithSubmissions;
 import com.jeison.courses.infrastructure.abstract_services.IActivityService;
 import com.jeison.courses.utils.enums.SortType;
 
@@ -56,6 +57,15 @@ public class ActivityController {
     @GetMapping("/{id}")
     public ResponseEntity<ActivityResp> getById(@PathVariable Long id) {
         return ResponseEntity.ok(activityService.findByIdWithDetails(id));
+    }
+
+    @Operation(summary = "Get an activity with submissions by its ID number")
+    @ApiResponse(responseCode = "400", description = "When the ID is not found", content = {
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+    })
+    @GetMapping("/{id}/submissions")
+    public ResponseEntity<ActivityRespWithSubmissions> getByIdWithSubmissions(@PathVariable Long id) {
+        return ResponseEntity.ok(activityService.getActivityWithSubmissions(id));
     }
 
     @Operation(summary = "Create an activity")
