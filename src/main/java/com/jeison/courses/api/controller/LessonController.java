@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jeison.courses.api.dto.errors.ErrorResp;
 import com.jeison.courses.api.dto.request.LessonReq;
 import com.jeison.courses.api.dto.response.LessonResp;
+import com.jeison.courses.api.dto.response.LessonRespWithActivities;
 import com.jeison.courses.infrastructure.abstract_services.ILessonService;
 import com.jeison.courses.utils.enums.SortType;
 
@@ -57,6 +58,15 @@ public class LessonController {
     public ResponseEntity<LessonResp> getById(@PathVariable Long id) {
         return ResponseEntity.ok(lessonService.findByIdWithDetails(id));
     }
+
+    @Operation(summary = "Get an course with lessons by its ID number")
+  @ApiResponse(responseCode = "400", description = "When the ID is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResp.class))
+  })
+  @GetMapping("/{id}/activities")
+  public ResponseEntity<LessonRespWithActivities> getByIdWithLessons(@PathVariable Long id) {
+    return ResponseEntity.ok(lessonService.getLessonWithActivities(id));
+  }
 
     @Operation(summary = "Create an lesson")
     @ApiResponse(responseCode = "400", description = "When the request is not valid", content = {

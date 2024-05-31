@@ -1,5 +1,7 @@
 package com.jeison.courses.infrastructure.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,12 +10,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.jeison.courses.api.dto.request.LessonReq;
+import com.jeison.courses.api.dto.response.ActivityResp;
 import com.jeison.courses.api.dto.response.LessonResp;
+import com.jeison.courses.api.dto.response.LessonRespWithActivities;
 import com.jeison.courses.domain.entities.Course;
 import com.jeison.courses.domain.entities.Lesson;
+import com.jeison.courses.domain.repositories.ActivityRepository;
 import com.jeison.courses.domain.repositories.CourseRepository;
 import com.jeison.courses.domain.repositories.LessonRepository;
 import com.jeison.courses.infrastructure.abstract_services.ILessonService;
+import com.jeison.courses.infrastructure.helper.ActivityHelper;
 import com.jeison.courses.infrastructure.helper.LessonHelper;
 import com.jeison.courses.utils.enums.SortType;
 import com.jeison.courses.utils.exception.BadRequestException;
@@ -29,6 +35,8 @@ public class LessonService implements ILessonService {
     private final LessonRepository lessonRepository;
     @Autowired
     private final CourseRepository courseRepository;
+    @Autowired
+    private final ActivityRepository activityRepository;
 
     @Override
     public Page<LessonResp> findAll(int page, int size, SortType sortType) {
@@ -55,7 +63,8 @@ public class LessonService implements ILessonService {
 
     @Override
     public LessonResp create(LessonReq request) {
-        Course course = courseRepository.findById(request.getCourseId()).orElseThrow(()-> new BadRequestException(ErrorMessage.idNotFound("course")));
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("course")));
         Lesson lesson = LessonHelper.reqToLesson(request);
         lesson.setCourse(course);
         return LessonHelper.lessonToResp(lessonRepository.save(lesson));
@@ -63,7 +72,7 @@ public class LessonService implements ILessonService {
 
     @Override
     public LessonResp update(LessonReq request, Long id) {
-        Lesson lessonFound =  findById(id);
+        Lesson lessonFound = findById(id);
         Lesson lesson = LessonHelper.reqToLesson(request);
         lesson.setId(id);
         lesson.setCourse(lessonFound.getCourse());
@@ -78,6 +87,20 @@ public class LessonService implements ILessonService {
     private Lesson findById(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.idNotFound("lesson")));
+    }
+
+    @Override
+    public LessonRespWithActivities getLessonWithActivities(Long id) {
+        List<ActivityResp> activities = activityRepository.findByLessonId(id).stream()
+                .map(activity -> ActivityHelper.activityToResp(activity)).toList();
+        Lesson lesson = findById(id);
+
+        return LessonRespWithActivities.builder()
+        .id(lesson.getId())
+        .lessonTitle(lesson.getLessonTitle())
+        .content(lesson.getContent())
+        .activities(activities)
+        .build();
     }
 
 }
