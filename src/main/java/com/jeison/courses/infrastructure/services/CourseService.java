@@ -97,7 +97,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public CourseRespWithLessons getAllCourseAndLessons(Long id) {
+    public CourseRespWithLessons getCourseWithLessons(Long id) {
         List<LessonResp> lessons = lessonRepository.findByCourseId(id).stream()
                 .map(lesson -> LessonHelper.lessonToResp(lesson)).toList();
         Course course = findById(id);

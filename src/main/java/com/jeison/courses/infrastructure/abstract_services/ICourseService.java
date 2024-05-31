@@ -7,6 +7,6 @@ import com.jeison.courses.api.dto.response.CourseRespWithLessons;
 public interface ICourseService extends CrudService<CourseReq,CourseResp,Long>{
 
     public final String FIELD_BY_SORT = "courseName";
-    public CourseRespWithLessons getAllCourseAndLessons(Long id);
+    public CourseRespWithLessons getCourseWithLessons(Long id);
 
 }

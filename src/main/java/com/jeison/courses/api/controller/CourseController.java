@@ -65,7 +65,7 @@ public class CourseController {
   })
   @GetMapping("/{id}/lessons")
   public ResponseEntity<CourseRespWithLessons> getByIdWithLessons(@PathVariable Long id) {
-    return ResponseEntity.ok(courseService.getAllCourseAndLessons(id));
+    return ResponseEntity.ok(courseService.getCourseWithLessons(id));
   }
 
   @Operation(summary = "Create an course")
