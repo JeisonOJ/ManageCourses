@@ -12,14 +12,18 @@ import org.springframework.stereotype.Service;
 import com.jeison.courses.api.dto.request.CourseReq;
 import com.jeison.courses.api.dto.response.CourseResp;
 import com.jeison.courses.api.dto.response.CourseRespWithLessons;
+import com.jeison.courses.api.dto.response.CourseRespWithStudents;
+import com.jeison.courses.api.dto.response.EnrollmentResp;
 import com.jeison.courses.api.dto.response.LessonResp;
 import com.jeison.courses.domain.entities.Course;
 import com.jeison.courses.domain.entities.User;
 import com.jeison.courses.domain.repositories.CourseRepository;
+import com.jeison.courses.domain.repositories.EnrollmentRepository;
 import com.jeison.courses.domain.repositories.LessonRepository;
 import com.jeison.courses.domain.repositories.UserRepository;
 import com.jeison.courses.infrastructure.abstract_services.ICourseService;
 import com.jeison.courses.infrastructure.helper.CourseHelper;
+import com.jeison.courses.infrastructure.helper.EnrollmentHelper;
 import com.jeison.courses.infrastructure.helper.LessonHelper;
 import com.jeison.courses.infrastructure.helper.UserHelper;
 import com.jeison.courses.utils.enums.RoleUser;
@@ -39,6 +43,8 @@ public class CourseService implements ICourseService {
     private final UserRepository userRepository;
     @Autowired
     private final LessonRepository lessonRepository;
+    @Autowired
+    private final EnrollmentRepository enrollmentRepository;
 
     @Override
     public Page<CourseResp> findAll(int page, int size, SortType sortType) {
@@ -109,6 +115,20 @@ public class CourseService implements ICourseService {
                 .instructor(UserHelper.userToResp(course.getInstructor()))
                 .lessons(lessons)
                 .build();
+    }
+
+    @Override
+    public CourseRespWithStudents getCourseWithStudents(Long id) {
+        List<EnrollmentResp> enrollments = enrollmentRepository.findByCourseId(id).stream()
+                .map(enrollment -> EnrollmentHelper.enrollmentToResp(enrollment)).toList();
+        Course course = findById(id);
+        return CourseRespWithStudents.builder()
+        .id(course.getId())
+        .courseName(course.getCourseName())
+        .description(course.getDescription())
+        .instructor(UserHelper.userToResp(course.getInstructor()))
+        .students(enrollments)
+        .build();
     }
 
 }
